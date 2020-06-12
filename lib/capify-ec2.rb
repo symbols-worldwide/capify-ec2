@@ -122,7 +122,7 @@ class CapifyEc2
     status_output = []
     status_output << 'Num'                                                         .bold
     status_output << 'Name'                       .ljust( column_widths[:name]    ).bold
-    status_output << 'ID'                         .ljust( 10                      ).bold
+    status_output << 'ID'                         .ljust( 19                      ).bold
     status_output << 'Type'                       .ljust( column_widths[:type]    ).bold
     status_output << 'DNS'                        .ljust( column_widths[:dns]     ).bold
     status_output << 'Zone'                       .ljust( 10                      ).bold
@@ -190,7 +190,7 @@ class CapifyEc2
         instance_row = []
         instance_row << " ".ljust( column_widths[:id] )  # indent the length of the id column
         instance_row << "+"
-        instance_row << (instance || '')                .ljust( 10 ).red
+        instance_row << (instance || '')                .ljust( 19 ).red
         instance_row << instance_health(lb, first_match)            .yellow
         instance_row << (first_match.name || '' )                   .cyan
         sub_output << instance_row.join("   ")
