@@ -102,7 +102,7 @@ class CapifyEc2
     column_widths = { :name_min => 4, :type_min => 4, :dns_min => 5, :roles_min => @ec2_config[:aws_roles_tag].length, :stages_min => @ec2_config[:aws_stages_tag].length, :options_min => @ec2_config[:aws_options_tag].length }
 
     # Find the longest attribute across all instances, to format the columns properly.
-    column_widths[:name]    = desired_instances.map{|i| i.name.to_s.ljust( column_widths[:name_min] )                                   || ' ' * column_widths[:name_min]    }.max_by(&:length).length
+    column_widths[:name]    = desired_instances.map{|i| i.tags['name'].to_s.ljust( column_widths[:name_min] )                           || ' ' * column_widths[:name_min]    }.max_by(&:length).length
     column_widths[:type]    = desired_instances.map{|i| i.flavor_id                                                                     || ' ' * column_widths[:type_min]    }.max_by(&:length).length
     column_widths[:dns]     = desired_instances.map{|i| i.contact_point.to_s.ljust( column_widths[:dns_min] )                           || ' ' * column_widths[:dns_min]     }.max_by(&:length).length
     column_widths[:roles]   = desired_instances.map{|i| i.tags[@ec2_config[:aws_roles_tag]].to_s.ljust( column_widths[:roles_min] )     || ' ' * column_widths[:roles_min]   }.max_by(&:length).length
@@ -135,7 +135,7 @@ class CapifyEc2
     desired_instances.each_with_index do |instance, i|
       status_output = []
       status_output << "%02d:" % i
-      status_output << (instance.name || '')                               .ljust( column_widths[:name]    ).green
+      status_output << (instance.tags['name'] || '')                       .ljust( column_widths[:name]    ).green
       status_output << instance.id                                         .ljust( 2                       ).red
       status_output << instance.flavor_id                                  .ljust( column_widths[:type]    ).cyan
       status_output << instance.contact_point                              .ljust( column_widths[:dns]     ).blue.bold
@@ -192,7 +192,7 @@ class CapifyEc2
         instance_row << "+"
         instance_row << (instance || '')                .ljust( 19 ).red
         instance_row << instance_health(lb, first_match)            .yellow
-        instance_row << (first_match.name || '' )                   .cyan
+        instance_row << (first_match.tags['name'] || '' )           .cyan
         sub_output << instance_row.join("   ")
       end
 
@@ -211,7 +211,7 @@ class CapifyEc2
   end
 
   def server_names
-    desired_instances.map {|instance| instance.name}
+    desired_instances.map {|instance| instance.tags['name']}
   end
 
   def project_instances
@@ -237,7 +237,7 @@ class CapifyEc2
   end
 
   def get_instance_by_name(name)
-    desired_instances.select {|instance| instance.name == name}.first
+    desired_instances.select {|instance| instance.tags['name'] == name}.first
   end
 
   def get_instance_by_dns(dns)
@@ -300,9 +300,9 @@ class CapifyEc2
       state = instance_health(load_balancer, instance)
     end
     if state == 'InService'
-      STDERR.puts "#{instance.name}: Healthy"
+      STDERR.puts "#{instance.tags['name']}: Healthy"
     else
-      STDERR.puts "#{instance.name}: tests timed out after #{time_elapsed} seconds."
+      STDERR.puts "#{instance.tags['name']}: tests timed out after #{time_elapsed} seconds."
     end
   end
 
